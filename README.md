@@ -11,7 +11,7 @@ It supports Pico 3 up to Pico 4 Ultra
 
 Also i added:
 - Option to enable/disable Passthrough in Winlator Settings (Disabled Passthrough will give you a performance boost)
-- bigger screen in XR
+- Bigger Screen in XR
 
 # Recommended:
 - After installing WinlatorXR, it is recommended to download Turnip-25.0.0 in Contents Menu and use it for your Container
