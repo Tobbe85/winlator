@@ -1,4 +1,4 @@
-![https://github.com/brunodev85/winlator/raw/main/logo.png]
+![image](https://github.com/brunodev85/winlator/raw/main/logo.png)
 # Release: Very Soon
 # WinlatorXR-Glibc
 This is the first WinlatorXR for Pico Devices.
