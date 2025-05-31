@@ -16,3 +16,6 @@ Also i added:
 
 # Recommended:
 - After installing WinlatorXR, it is recommended to download Turnip-25.0.0 in Contents Menu and use it for your Container
+
+# Download latest Build
+- https://github.com/Tobbe85/winlator/releases/latest
