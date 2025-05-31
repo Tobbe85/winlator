@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Winlator</string>
+    <string name="app_name">WinlatorXR</string>
     <string name="run">Run</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
@@ -344,6 +344,7 @@
 
     <!-- OpenXR specific text -->
     <string name="use_xr">Use OpenXR integration</string>
+    <string name="use_pt">Use Passthrough</string>
     <string name="xr" translatable="false">XR</string>
     <string name="primary_controller">Primary controller</string>
     <string name="left_controller">Left controller</string>

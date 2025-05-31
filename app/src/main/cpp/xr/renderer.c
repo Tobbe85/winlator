@@ -5,9 +5,23 @@
 #include "engine.h"
 #include "math.h"
 #include "renderer.h"
+#include <jni.h>
+#include <stdbool.h>
 
 #define DECL_PFN(pfn) PFN_##pfn pfn = NULL
 #define INIT_PFN(pfn) OXR(xrGetInstanceProcAddr(engine->Instance, #pfn, (PFN_xrVoidFunction*)(&pfn)))
+
+static bool gUsePT = false;
+
+JNIEXPORT void JNICALL
+Java_com_winlator_XrActivity_nativeSetUsePT(JNIEnv *env, jobject obj, jboolean enabled) {
+    gUsePT = (enabled == JNI_TRUE);
+}
+
+bool isUsePTEnabled() {
+    return gUsePT;
+}
+
 
 DECL_PFN(xrCreatePassthroughFB);
 DECL_PFN(xrDestroyPassthroughFB);
@@ -223,7 +237,7 @@ bool XrRendererInitFrame(struct XrEngine* engine, struct XrRenderer* renderer)
     // Update passthrough
     if (renderer->PassthroughRunning != renderer->ConfigInt[CONFIG_PASSTHROUGH])
     {
-        if (renderer->ConfigInt[CONFIG_PASSTHROUGH])
+        if ((renderer->ConfigInt[CONFIG_PASSTHROUGH]) && gUsePT)
         {
             OXR(xrPassthroughLayerResumeFB(renderer->PassthroughLayer));
         }
@@ -380,8 +394,8 @@ void XrRendererFinishFrame(struct XrEngine* engine, struct XrRenderer* renderer)
         quad_layer.subImage.imageArrayIndex = 0;
         quad_layer.pose.orientation = XrQuaternionfMultiply(pitch, yaw);
         quad_layer.pose.position = pos;
-        quad_layer.size.width = 4;
-        quad_layer.size.height = 4;
+        quad_layer.size.width = 6;
+        quad_layer.size.height = 6;
 
         // Build the cylinder layer
         if (renderer->ConfigInt[CONFIG_SBS])

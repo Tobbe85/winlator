@@ -12,6 +12,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
 
@@ -54,6 +55,9 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     private static final float[] smoothedMouse = new float[2];
     private static XrActivity instance;
 
+    public native void nativeSetUsePT(boolean enabled);
+    public native void sendManufacturer(String manufacturer);
+
     @Override
     public synchronized void onPause() {
         EditText text = findViewById(R.id.XRTextInput);
@@ -71,11 +75,28 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         text.setVisibility(View.VISIBLE);
         text.getEditableText().clear();
         text.addTextChangedListener(this);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean usePT = prefs.getBoolean("use_pt", true);
+
+        nativeSetUsePT(usePT);
+
+        String manufacturer = Build.MANUFACTURER.toUpperCase();
+        sendManufacturer(manufacturer);
     }
 
     @Override
     public synchronized void onDestroy() {
         super.onDestroy();
+
+        Intent intent = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+
+        android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);
     }
 
@@ -139,10 +160,13 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
 
     public static boolean isSupported() {
         if (!isDeviceDetectionFinished) {
+            if (Build.MANUFACTURER.compareToIgnoreCase("QUEST") == 0) {
+                isDeviceSupported = true;
+            }
             if (Build.MANUFACTURER.compareToIgnoreCase("META") == 0) {
                 isDeviceSupported = true;
             }
-            if (Build.MANUFACTURER.compareToIgnoreCase("OCULUS") == 0) {
+            if (Build.MANUFACTURER.compareToIgnoreCase("PICO") == 0) {
                 isDeviceSupported = true;
             }
             isDeviceDetectionFinished = true;

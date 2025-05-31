@@ -2,6 +2,8 @@
 #include "input.h"
 #include "math.h"
 #include "renderer.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 #include <string.h>
 
@@ -31,18 +33,34 @@ void OXRCheckErrors(XrResult result, const char* file, int line) {
 }
 #endif
 
+char gManufacturer[128] = {0};
+
+JNIEXPORT void JNICALL Java_com_winlator_XrActivity_sendManufacturer(JNIEnv *env, jobject thiz, jstring manufacturer) {
+    const char *nativeStr = (*env)->GetStringUTFChars(env, manufacturer, 0);
+    strncpy(gManufacturer, nativeStr, sizeof(gManufacturer) - 1);
+    gManufacturer[sizeof(gManufacturer) - 1] = '\0';
+    (*env)->ReleaseStringUTFChars(env, manufacturer, nativeStr);
+}
+
 JNIEXPORT void JNICALL Java_com_winlator_XrActivity_init(JNIEnv *env, jobject obj) {
 
     // Do not allow second initialization
     if (xr_initialized) {
         return;
     }
-
-    // Set platform flags
-    memset(&xr_module_engine, 0, sizeof(xr_module_engine));
-    xr_module_engine.PlatformFlag[PLATFORM_CONTROLLER_QUEST] = true;
-    xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
-    xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PERFORMANCE] = true;
+    if (strcmp(gManufacturer, "PICO") == 0) {
+        memset(&xr_module_engine, 0, sizeof(xr_module_engine));
+        xr_module_engine.PlatformFlag[PLATFORM_CONTROLLER_PICO] = true;
+        xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_INSTANCE] = true;
+        xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
+        xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PERFORMANCE] = true;
+    }
+    if (strcmp(gManufacturer, "META") == 0 || strcmp(gManufacturer, "QUEST") == 0) {
+        memset(&xr_module_engine, 0, sizeof(xr_module_engine));
+        xr_module_engine.PlatformFlag[PLATFORM_CONTROLLER_QUEST] = true;
+        xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
+        xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PERFORMANCE] = true;
+    }
 
     // Get Java VM
     JavaVM* vm;

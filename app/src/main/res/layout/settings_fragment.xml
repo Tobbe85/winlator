@@ -205,18 +205,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout style="@style/FieldSet">
+                <LinearLayout
+                    style="@style/FieldSet"
+                    android:layout_height="239dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/cursor_speed"/>
+                            android:text="@string/cursor_speed" />
 
                         <TextView
                             android:id="@+id/TVCursorSpeed"
@@ -228,29 +231,36 @@
                         android:id="@+id/SBCursorSpeed"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:min="10"
-                        android:max="200" />
+                        android:max="200"
+                        android:min="10" />
 
                     <CheckBox
                         android:id="@+id/CBHaptics"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/virtual_buttons_haptics"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="8dp"
+                        android:text="@string/virtual_buttons_haptics" />
 
                     <CheckBox
                         android:id="@+id/CBUseDRI3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/use_dri3_extension"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="8dp"
+                        android:text="@string/use_dri3_extension" />
 
                     <CheckBox
                         android:id="@+id/CBUseXR"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/use_xr"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="8dp"
+                        android:text="@string/use_xr" />
+
+                    <CheckBox
+                        android:id="@+id/CBUsePT"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/use_pt" />
                 </LinearLayout>
 
                 <TextView

@@ -183,6 +183,12 @@ public class SettingsFragment extends Fragment {
             cbUseXR.setVisibility(View.GONE);
         }
 
+        final CheckBox cbUsePT = view.findViewById(R.id.CBUsePT);
+        cbUsePT.setChecked(preferences.getBoolean("use_pt", true));
+        if (!XrActivity.isSupported()) {
+            cbUsePT.setVisibility(View.GONE);
+        }
+
         final CheckBox cbEnableWineDebug = view.findViewById(R.id.CBEnableWineDebug);
         cbEnableWineDebug.setChecked(preferences.getBoolean("enable_wine_debug", false));
 
@@ -248,6 +254,7 @@ public class SettingsFragment extends Fragment {
             editor.putBoolean("haptics", cbHaptics.isChecked());
             editor.putBoolean("use_dri3", cbUseDRI3.isChecked());
             editor.putBoolean("use_xr", cbUseXR.isChecked());
+            editor.putBoolean("use_pt", cbUsePT.isChecked());
             editor.putFloat("cursor_speed", sbCursorSpeed.getProgress() / 100.0f);
             editor.putBoolean("enable_wine_debug", cbEnableWineDebug.isChecked());
             editor.putBoolean("enable_box86_64_logs", cbEnableBox86_64Logs.isChecked());
