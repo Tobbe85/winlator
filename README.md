@@ -1,9 +1,17 @@
-# Winlator-Glibc
-dddd
-![image](https://github.com/user-attachments/assets/f355574f-af5b-45be-8afc-641ab297da34)
+# Release: Very Soon
+# WinlatorXR-Glibc
+This is the first WinlatorXR for Pico Devices.
+It supports Pico 3 up to Pico 4 Ultra
 
-It's been a few months since the lead developer `longjunyu2` has been online. He originally mentioned studying and planned to return in 2025, but after October 15, 2024, the level of communication with him went to zero.
+# The OpenXR implementation was made by Lubos [Team Beef] https://github.com/lvonasek, i just made it available for Pico. It includes:
+- Full Pico Controller Support in XR
+- Pseudo VR mode (Left Thumbstick Press)
+- SBS Mode (Right Grip + Left Thumbstick Press)
+- Pico Keyboard Support (Right Thumbstick Press)
 
-Development of this project is on hold and will not resume until `longjunyu2` returns.
+Also i added:
+- Option to enable/disable Passthrough in Winlator Settings
+- bigger screen in XR
 
-This repository was also home to WinlatorXR. The XR version is planned to be rebased on the original Winlator.
+# Recommended:
+- After installing WinlatorXR, it is recommended to download Turnip-25.0.0 in Contents Menu and use it for your Container
