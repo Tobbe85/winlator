@@ -10,7 +10,7 @@ It supports Pico 3 up to Pico 4 Ultra
 - Pico Keyboard Support (Right Thumbstick Press)
 
 Also i added:
-- Option to enable/disable Passthrough in Winlator Settings
+- Option to enable/disable Passthrough in Winlator Settings (Disabled Passthrough will give you a performance boost)
 - bigger screen in XR
 
 # Recommended:
