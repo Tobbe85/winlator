@@ -8,8 +8,6 @@ It supports Pico 3 up to Pico 4 Ultra
 - Pseudo VR mode (Left Thumbstick Press)
 - SBS Mode (Right Grip + Left Thumbstick Press)
 - Pico Keyboard Support (Right Thumbstick Press)
-
-Also i added:
 - Option to enable/disable Passthrough in Winlator Settings (Disabled Passthrough will give you a performance boost)
 - Bigger Screen in XR
 
