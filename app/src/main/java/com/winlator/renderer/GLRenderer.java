@@ -7,7 +7,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
 import com.winlator.R;
-import com.winlator.XrActivity;
+import com.winlator.XrActivityCommon;
 import com.winlator.math.Mathf;
 import com.winlator.math.XForm;
 import com.winlator.renderer.material.CursorMaterial;
@@ -86,8 +86,8 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        if (XrActivity.isEnabled(null)) {
-            XrActivity activity = XrActivity.getInstance();
+        if (XrActivityCommon.isEnabled(null)) {
+            XrActivityCommon activity = XrActivityCommon.getInstance();
             activity.init();
             width = activity.getWidth();
             height = activity.getHeight();
@@ -115,9 +115,9 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
     private void drawFrame() {
         boolean xrFrame = false;
         boolean xrImmersive = false;
-        if (XrActivity.isEnabled(null)) {
-            xrImmersive = XrActivity.getImmersive();
-            xrFrame = XrActivity.getInstance().beginFrame(xrImmersive, XrActivity.getSBS());
+        if (XrActivityCommon.isEnabled(null)) {
+            xrImmersive = XrActivityCommon.getImmersive();
+            xrFrame = XrActivityCommon.getInstance().beginFrame(xrImmersive, XrActivityCommon.getSBS());
         }
 
         if (viewportNeedsUpdate && magnifierEnabled) {
@@ -169,8 +169,8 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
         if (!magnifierEnabled && !fullscreen) GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 
         if (xrFrame) {
-            XrActivity.getInstance().endFrame();
-            XrActivity.updateControllers();
+            XrActivityCommon.getInstance().endFrame();
+            XrActivityCommon.updateControllers();
             xServerView.requestRender();
         }
     }

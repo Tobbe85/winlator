@@ -28,7 +28,7 @@ import com.winlator.xserver.XServer;
     WinlatorXR implementation by lvonasek (https://github.com/lvonasek)
  */
 
-public class XrActivity extends XServerDisplayActivity implements TextWatcher {
+public class XrActivityCommon extends XServerDisplayActivity implements TextWatcher {
     // Order of the enum has to be the as in xr/main.cpp
     public enum ControllerAxis {
         L_PITCH, L_YAW, L_ROLL, L_THUMBSTICK_X, L_THUMBSTICK_Y, L_X, L_Y, L_Z,
@@ -53,7 +53,7 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     private static String lastText = "";
     private static float mouseSpeed = 1;
     private static final float[] smoothedMouse = new float[2];
-    private static XrActivity instance;
+    private static XrActivityCommon instance;
 
     public native void nativeSetUsePT(boolean enabled);
     public native void sendManufacturer(String manufacturer);
@@ -139,7 +139,7 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         text.addTextChangedListener(this);
     }
 
-    public static XrActivity getInstance() {
+    public static XrActivityCommon getInstance() {
         return instance;
     }
 
@@ -160,10 +160,10 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
 
     public static boolean isSupported() {
         if (!isDeviceDetectionFinished) {
-            if (Build.MANUFACTURER.compareToIgnoreCase("QUEST") == 0) {
+            if (Build.MANUFACTURER.compareToIgnoreCase("META") == 0) {
                 isDeviceSupported = true;
             }
-            if (Build.MANUFACTURER.compareToIgnoreCase("META") == 0) {
+            if (Build.MANUFACTURER.compareToIgnoreCase("OCULUS") == 0) {
                 isDeviceSupported = true;
             }
             if (Build.MANUFACTURER.compareToIgnoreCase("PICO") == 0) {
@@ -176,7 +176,8 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
 
     public static void openIntent(Activity context, int containerId, String path) {
         // 0. Create the launch intent
-        Intent intent = new Intent(context, XrActivity.class);
+        boolean isPico = Build.MANUFACTURER.compareToIgnoreCase("PICO") == 0;
+        Intent intent = new Intent(context, isPico ? XrActivityPico.class : XrActivityMeta.class);
         intent.putExtra("container_id", containerId);
         if (path != null) {
             intent.putExtra("shortcut_path", path);
