@@ -1,4 +1,4 @@
 package com.winlator;
 
-public class XrActivityMeta extends XrActivityCommon {
+public class XrActivityMeta extends XrActivity {
 }

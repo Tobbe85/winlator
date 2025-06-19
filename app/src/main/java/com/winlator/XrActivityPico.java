@@ -1,4 +1,4 @@
 package com.winlator;
 
-public class XrActivityPico extends XrActivityCommon {
+public class XrActivityPico extends XrActivity {
 }

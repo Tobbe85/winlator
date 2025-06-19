@@ -28,7 +28,7 @@ import com.winlator.xserver.XServer;
     WinlatorXR implementation by lvonasek (https://github.com/lvonasek)
  */
 
-public class XrActivityCommon extends XServerDisplayActivity implements TextWatcher {
+public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     // Order of the enum has to be the as in xr/main.cpp
     public enum ControllerAxis {
         L_PITCH, L_YAW, L_ROLL, L_THUMBSTICK_X, L_THUMBSTICK_Y, L_X, L_Y, L_Z,
@@ -53,7 +53,7 @@ public class XrActivityCommon extends XServerDisplayActivity implements TextWatc
     private static String lastText = "";
     private static float mouseSpeed = 1;
     private static final float[] smoothedMouse = new float[2];
-    private static XrActivityCommon instance;
+    private static XrActivity instance;
 
     public native void nativeSetUsePT(boolean enabled);
     public native void sendManufacturer(String manufacturer);
@@ -139,7 +139,7 @@ public class XrActivityCommon extends XServerDisplayActivity implements TextWatc
         text.addTextChangedListener(this);
     }
 
-    public static XrActivityCommon getInstance() {
+    public static XrActivity getInstance() {
         return instance;
     }
 
