@@ -11,6 +11,7 @@ struct XrEngine xr_module_engine;
 struct XrInput xr_module_input;
 struct XrRenderer xr_module_renderer;
 bool xr_initialized = false;
+bool xr_usePassthrough = false;
 
 #if defined(_DEBUG)
 #include <GLES2/gl2.h>
@@ -35,14 +36,14 @@ void OXRCheckErrors(XrResult result, const char* file, int line) {
 
 char gManufacturer[128] = {0};
 
-JNIEXPORT void JNICALL Java_com_winlator_XrActivity_sendManufacturer(JNIEnv *env, jobject thiz, jstring manufacturer) {
+JNIEXPORT void JNICALL Java_com_winlator_XrActivityCommon_sendManufacturer(JNIEnv *env, jobject thiz, jstring manufacturer) {
     const char *nativeStr = (*env)->GetStringUTFChars(env, manufacturer, 0);
     strncpy(gManufacturer, nativeStr, sizeof(gManufacturer) - 1);
     gManufacturer[sizeof(gManufacturer) - 1] = '\0';
     (*env)->ReleaseStringUTFChars(env, manufacturer, nativeStr);
 }
 
-JNIEXPORT void JNICALL Java_com_winlator_XrActivity_init(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_winlator_XrActivityCommon_init(JNIEnv *env, jobject obj) {
 
     // Do not allow second initialization
     if (xr_initialized) {
@@ -55,7 +56,7 @@ JNIEXPORT void JNICALL Java_com_winlator_XrActivity_init(JNIEnv *env, jobject ob
         xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
         xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PERFORMANCE] = true;
     }
-    if (strcmp(gManufacturer, "META") == 0 || strcmp(gManufacturer, "QUEST") == 0) {
+    if (strcmp(gManufacturer, "META") == 0 || strcmp(gManufacturer, "OCULUS") == 0) {
         memset(&xr_module_engine, 0, sizeof(xr_module_engine));
         xr_module_engine.PlatformFlag[PLATFORM_CONTROLLER_QUEST] = true;
         xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
@@ -80,30 +81,30 @@ JNIEXPORT void JNICALL Java_com_winlator_XrActivity_init(JNIEnv *env, jobject ob
     ALOGV("Init called");
 }
 
-JNIEXPORT void JNICALL Java_com_winlator_XrActivity_bindFramebuffer(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_winlator_XrActivityCommon_bindFramebuffer(JNIEnv *env, jobject obj) {
     if (xr_initialized) {
         XrRendererBindFramebuffer(&xr_module_renderer);
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_winlator_XrActivity_getWidth(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_com_winlator_XrActivityCommon_getWidth(JNIEnv *env, jobject obj) {
     int w, h;
     XrRendererGetResolution(&xr_module_engine, &xr_module_renderer, &w, &h);
     return w;
 }
-JNIEXPORT jint JNICALL Java_com_winlator_XrActivity_getHeight(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_com_winlator_XrActivityCommon_getHeight(JNIEnv *env, jobject obj) {
     int w, h;
     XrRendererGetResolution(&xr_module_engine, &xr_module_renderer, &w, &h);
     return h;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_winlator_XrActivity_beginFrame(JNIEnv *env, jobject obj, jboolean immersive, jboolean sbs) {
+JNIEXPORT jboolean JNICALL Java_com_winlator_XrActivityCommon_beginFrame(JNIEnv *env, jobject obj, jboolean immersive, jboolean sbs) {
     if (XrRendererInitFrame(&xr_module_engine, &xr_module_renderer)) {
 
         // Set render canvas
         int mode = immersive ? RENDER_MODE_MONO_6DOF : RENDER_MODE_MONO_SCREEN;
         xr_module_renderer.ConfigFloat[CONFIG_CANVAS_DISTANCE] = 5.0f;
-        xr_module_renderer.ConfigInt[CONFIG_PASSTHROUGH] = !immersive;
+        xr_module_renderer.ConfigInt[CONFIG_PASSTHROUGH] = !immersive && xr_usePassthrough;
         xr_module_renderer.ConfigInt[CONFIG_MODE] = mode;
         xr_module_renderer.ConfigInt[CONFIG_SBS] = sbs;
 
@@ -125,12 +126,12 @@ JNIEXPORT jboolean JNICALL Java_com_winlator_XrActivity_beginFrame(JNIEnv *env, 
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_winlator_XrActivity_endFrame(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_winlator_XrActivityCommon_endFrame(JNIEnv *env, jobject obj) {
     XrRendererEndFrame(&xr_module_renderer);
     XrRendererFinishFrame(&xr_module_engine, &xr_module_renderer);
 }
 
-JNIEXPORT jfloatArray JNICALL Java_com_winlator_XrActivity_getAxes(JNIEnv *env, jobject obj) {
+JNIEXPORT jfloatArray JNICALL Java_com_winlator_XrActivityCommon_getAxes(JNIEnv *env, jobject obj) {
     XrPosef lPose = XrInputGetPose(&xr_module_input, 0);
     XrPosef rPose = XrInputGetPose(&xr_module_input, 1);
     XrVector2f lThumbstick = XrInputGetJoystickState(&xr_module_input, 0);
@@ -173,7 +174,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_winlator_XrActivity_getAxes(JNIEnv *env, 
     return output;
 }
 
-JNIEXPORT jbooleanArray JNICALL Java_com_winlator_XrActivity_getButtons(JNIEnv *env, jobject obj) {
+JNIEXPORT jbooleanArray JNICALL Java_com_winlator_XrActivityCommon_getButtons(JNIEnv *env, jobject obj) {
     uint32_t l = XrInputGetButtonState(&xr_module_input, 0);
     uint32_t r = XrInputGetButtonState(&xr_module_input, 1);
 
@@ -204,4 +205,9 @@ JNIEXPORT jbooleanArray JNICALL Java_com_winlator_XrActivity_getButtons(JNIEnv *
     jbooleanArray output = (*env)->NewBooleanArray(env, count);
     (*env)->SetBooleanArrayRegion(env, output, (jsize)0, (jsize)count, values);
     return output;
+}
+
+JNIEXPORT void JNICALL
+Java_com_winlator_XrActivityCommon_nativeSetUsePT(JNIEnv *env, jobject obj, jboolean enabled) {
+    xr_usePassthrough = enabled;
 }

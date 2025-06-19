@@ -11,18 +11,6 @@
 #define DECL_PFN(pfn) PFN_##pfn pfn = NULL
 #define INIT_PFN(pfn) OXR(xrGetInstanceProcAddr(engine->Instance, #pfn, (PFN_xrVoidFunction*)(&pfn)))
 
-static bool gUsePT = false;
-
-JNIEXPORT void JNICALL
-Java_com_winlator_XrActivity_nativeSetUsePT(JNIEnv *env, jobject obj, jboolean enabled) {
-    gUsePT = (enabled == JNI_TRUE);
-}
-
-bool isUsePTEnabled() {
-    return gUsePT;
-}
-
-
 DECL_PFN(xrCreatePassthroughFB);
 DECL_PFN(xrDestroyPassthroughFB);
 DECL_PFN(xrPassthroughStartFB);
@@ -237,7 +225,7 @@ bool XrRendererInitFrame(struct XrEngine* engine, struct XrRenderer* renderer)
     // Update passthrough
     if (renderer->PassthroughRunning != renderer->ConfigInt[CONFIG_PASSTHROUGH])
     {
-        if ((renderer->ConfigInt[CONFIG_PASSTHROUGH]) && gUsePT)
+        if (renderer->ConfigInt[CONFIG_PASSTHROUGH])
         {
             OXR(xrPassthroughLayerResumeFB(renderer->PassthroughLayer));
         }
@@ -307,6 +295,16 @@ void XrRendererEndFrame(struct XrRenderer* renderer)
 
 void XrRendererFinishFrame(struct XrEngine* engine, struct XrRenderer* renderer)
 {
+    if (engine->PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] && renderer->ConfigInt[CONFIG_PASSTHROUGH]) {
+        if (renderer->PassthroughLayer != XR_NULL_HANDLE) {
+            XrCompositionLayerPassthroughFB passthrough_layer = {XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB};
+            passthrough_layer.layerHandle = renderer->PassthroughLayer;
+            passthrough_layer.flags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+            passthrough_layer.space = XR_NULL_HANDLE;
+            renderer->Layers[renderer->LayerCount++].passthrough = passthrough_layer;
+        }
+    }
+
     int x = 0;
     int y = 0;
     int w = renderer->Framebuffer[0].Width;

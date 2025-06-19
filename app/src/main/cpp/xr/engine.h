@@ -62,6 +62,7 @@ typedef union
 {
   XrCompositionLayerProjection projection;
   XrCompositionLayerQuad quad;
+  XrCompositionLayerPassthroughFB passthrough;
 } XrCompositorLayer;
 
 #ifdef ANDROID
