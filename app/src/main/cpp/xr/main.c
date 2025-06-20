@@ -11,6 +11,7 @@ struct XrEngine xr_module_engine;
 struct XrInput xr_module_input;
 struct XrRenderer xr_module_renderer;
 bool xr_initialized = false;
+bool xr_usePassthrough = false;
 
 #if defined(_DEBUG)
 #include <GLES2/gl2.h>
@@ -55,7 +56,7 @@ JNIEXPORT void JNICALL Java_com_winlator_XrActivity_init(JNIEnv *env, jobject ob
         xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
         xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PERFORMANCE] = true;
     }
-    if (strcmp(gManufacturer, "META") == 0 || strcmp(gManufacturer, "QUEST") == 0) {
+    if (strcmp(gManufacturer, "META") == 0 || strcmp(gManufacturer, "OCULUS") == 0) {
         memset(&xr_module_engine, 0, sizeof(xr_module_engine));
         xr_module_engine.PlatformFlag[PLATFORM_CONTROLLER_QUEST] = true;
         xr_module_engine.PlatformFlag[PLATFORM_EXTENSION_PASSTHROUGH] = true;
@@ -103,7 +104,7 @@ JNIEXPORT jboolean JNICALL Java_com_winlator_XrActivity_beginFrame(JNIEnv *env, 
         // Set render canvas
         int mode = immersive ? RENDER_MODE_MONO_6DOF : RENDER_MODE_MONO_SCREEN;
         xr_module_renderer.ConfigFloat[CONFIG_CANVAS_DISTANCE] = 5.0f;
-        xr_module_renderer.ConfigInt[CONFIG_PASSTHROUGH] = !immersive;
+        xr_module_renderer.ConfigInt[CONFIG_PASSTHROUGH] = !immersive && xr_usePassthrough;
         xr_module_renderer.ConfigInt[CONFIG_MODE] = mode;
         xr_module_renderer.ConfigInt[CONFIG_SBS] = sbs;
 
@@ -204,4 +205,9 @@ JNIEXPORT jbooleanArray JNICALL Java_com_winlator_XrActivity_getButtons(JNIEnv *
     jbooleanArray output = (*env)->NewBooleanArray(env, count);
     (*env)->SetBooleanArrayRegion(env, output, (jsize)0, (jsize)count, values);
     return output;
+}
+
+JNIEXPORT void JNICALL
+Java_com_winlator_XrActivity_nativeSetUsePT(JNIEnv *env, jobject obj, jboolean enabled) {
+    xr_usePassthrough = enabled;
 }

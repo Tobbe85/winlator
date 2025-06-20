@@ -2,7 +2,6 @@ package com.winlator.container;
 
 import android.os.Environment;
 
-import com.winlator.XrActivity;
 import com.winlator.box86_64.Box86_64Preset;
 import com.winlator.core.EnvVars;
 import com.winlator.core.FileUtils;

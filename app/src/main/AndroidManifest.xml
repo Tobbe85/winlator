@@ -52,7 +52,23 @@
             android:screenOrientation="sensorLandscape" />
 
         <activity
-            android:name="com.winlator.XrActivity"
+            android:name="com.winlator.XrActivityMeta"
+            android:configChanges="density|orientation|screenSize|keyboard|keyboardHidden|uiMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="false"
+            android:screenOrientation="landscape"
+            android:process=":vr_process"
+            android:theme="@style/AppThemeFullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="com.oculus.intent.category.VR" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.winlator.XrActivityPico"
             android:configChanges="density|orientation|screenSize|keyboard|keyboardHidden|uiMode"
             android:exported="true"
             android:launchMode="singleTask"

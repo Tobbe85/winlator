@@ -160,10 +160,10 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
 
     public static boolean isSupported() {
         if (!isDeviceDetectionFinished) {
-            if (Build.MANUFACTURER.compareToIgnoreCase("QUEST") == 0) {
+            if (Build.MANUFACTURER.compareToIgnoreCase("META") == 0) {
                 isDeviceSupported = true;
             }
-            if (Build.MANUFACTURER.compareToIgnoreCase("META") == 0) {
+            if (Build.MANUFACTURER.compareToIgnoreCase("OCULUS") == 0) {
                 isDeviceSupported = true;
             }
             if (Build.MANUFACTURER.compareToIgnoreCase("PICO") == 0) {
@@ -176,7 +176,8 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
 
     public static void openIntent(Activity context, int containerId, String path) {
         // 0. Create the launch intent
-        Intent intent = new Intent(context, XrActivity.class);
+        boolean isPico = Build.MANUFACTURER.compareToIgnoreCase("PICO") == 0;
+        Intent intent = new Intent(context, isPico ? XrActivityPico.class : XrActivityMeta.class);
         intent.putExtra("container_id", containerId);
         if (path != null) {
             intent.putExtra("shortcut_path", path);
