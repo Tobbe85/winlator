@@ -170,6 +170,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
         if (!magnifierEnabled && !fullscreen) GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 
         if (xrFrame) {
+            renderDialog();
             XrActivity.getInstance().endFrame();
             XrActivity.updateControllers();
             xServerView.requestRender();
@@ -269,16 +270,6 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
                     renderDrawable(window.content, window.rootX, window.rootY, windowMaterial, window.forceFullscreen);
                 }
             }
-
-            ContentDialog dialog = ContentDialog.getFrontInstance();
-            if (dialog != null) {
-                Drawable drawable = dialog.getDrawable();
-                if (drawable != null) {
-                    int offsetX = (xServer.screenInfo.width - drawable.width) / 2;
-                    int offsetY = (xServer.screenInfo.height - drawable.height) / 2;
-                    renderDrawable(drawable, offsetX, offsetY, windowMaterial, false);
-                }
-            }
         }
 
         quadVertices.disable();
@@ -301,6 +292,25 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
             else renderDrawable(rootCursorDrawable, x, y, cursorMaterial);
         }
 
+        quadVertices.disable();
+    }
+
+    private void renderDialog() {
+        windowMaterial.use();
+        GLES20.glUniform2f(windowMaterial.getUniformLocation("viewSize"), xServer.screenInfo.width, xServer.screenInfo.height);
+        quadVertices.bind(windowMaterial.programId);
+
+        try (XLock lock = xServer.lock(XServer.Lockable.DRAWABLE_MANAGER)) {
+            ContentDialog dialog = ContentDialog.getFrontInstance();
+            if (dialog != null) {
+                Drawable drawable = dialog.getDrawable();
+                if (drawable != null) {
+                    int offsetX = (xServer.screenInfo.width - drawable.width) / 2;
+                    int offsetY = (xServer.screenInfo.height - drawable.height) / 2;
+                    renderDrawable(drawable, offsetX, offsetY, windowMaterial, false);
+                }
+            }
+        }
         quadVertices.disable();
     }
 

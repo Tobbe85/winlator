@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.SparseBooleanArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.BaseInputConnection;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -260,9 +262,14 @@ public class ContentDialog extends Dialog {
         }
 
         //Render window
-        v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
         v.draw(canvas);
         return bitmap == null ? null : Drawable.fromBitmap(bitmap);
+    }
+
+    public void onKeyAction(int keyCode) {
+        BaseInputConnection input = new BaseInputConnection(contentView, true);
+        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
     }
 
     public static ContentDialog getFrontInstance() {

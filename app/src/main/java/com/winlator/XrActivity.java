@@ -224,7 +224,15 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         ControllerButton secondaryPress = primaryController == 1 ? ControllerButton.L_THUMBSTICK_PRESS : ControllerButton.R_THUMBSTICK_PRESS;
 
         // Android UI input
-        if (getButtonClicked(buttons, primaryPress)) {
+        ContentDialog dialog = ContentDialog.getFrontInstance();
+        if (dialog != null) {
+            if (getButtonClicked(buttons, primaryPress)) instance.runOnUiThread(() -> dialog.onBackPressed());
+            if (getButtonClicked(buttons, primaryUp)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_UP));
+            if (getButtonClicked(buttons, primaryDown)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_DOWN));
+            if (getButtonClicked(buttons, primaryTrigger)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_ENTER));
+            if (getButtonClicked(buttons, primaryLeft)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_LEFT));
+            if (getButtonClicked(buttons, primaryRight)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_RIGHT));
+        } else if (getButtonClicked(buttons, primaryPress)) {
             instance.runOnUiThread(() -> instance.onBackPressed());
                 /*instance.runOnUiThread(() -> {
                     isSBS = false;
@@ -233,10 +241,6 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
                     AppUtils.showKeyboard(instance);
                     instance.findViewById(R.id.XRTextInput).requestFocus();
                 });*/
-        }
-        ContentDialog dialog = ContentDialog.getFrontInstance();
-        if (dialog != null) {
-
         }
 
         try (XLock lock = instance.getXServer().lock(XServer.Lockable.WINDOW_MANAGER, XServer.Lockable.INPUT_DEVICE)) {
