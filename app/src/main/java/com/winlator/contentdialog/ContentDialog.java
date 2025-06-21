@@ -21,6 +21,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.winlator.R;
+import com.winlator.XrActivity;
 import com.winlator.core.AppUtils;
 import com.winlator.core.Callback;
 import com.winlator.xserver.Drawable;
@@ -236,7 +237,7 @@ public class ContentDialog extends Dialog {
     }
 
     public Drawable getDrawable() {
-        redraw();
+        XrActivity.getInstance().runOnUiThread(this::redraw);
         return drawable;
     }
 
