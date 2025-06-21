@@ -236,6 +236,7 @@ public class ContentDialog extends Dialog {
     }
 
     public Drawable getDrawable() {
+        redraw();
         return drawable;
     }
 

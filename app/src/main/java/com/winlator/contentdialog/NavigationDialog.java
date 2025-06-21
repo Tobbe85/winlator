@@ -2,6 +2,7 @@ package com.winlator.contentdialog;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
@@ -49,6 +50,14 @@ public class NavigationDialog extends ContentDialog {
             layout.setOnClickListener(view -> {
                 context.onNavigationItemSelected(item);
                 dismiss();
+            });
+
+            layout.setOnFocusChangeListener((view, focused) -> {
+                if (focused) {
+                    layout.setBackgroundColor(Color.GRAY);
+                } else {
+                    layout.setBackgroundColor(Color.TRANSPARENT);
+                }
             });
 
             int size = dpToPx(40, context);

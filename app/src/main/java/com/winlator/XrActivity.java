@@ -232,7 +232,7 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
             if (getButtonClicked(buttons, primaryTrigger)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_ENTER));
             if (getButtonClicked(buttons, primaryLeft)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_LEFT));
             if (getButtonClicked(buttons, primaryRight)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_RIGHT));
-            instance.runOnUiThread(dialog::redraw);
+            System.arraycopy(buttons, 0, lastButtons, 0, buttons.length);
             return;
         } else if (getButtonClicked(buttons, primaryPress)) {
             instance.runOnUiThread(() -> instance.onBackPressed());
