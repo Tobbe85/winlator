@@ -47,6 +47,7 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     private static boolean isEnabled = false;
     private static boolean isImmersive = false;
     private static boolean isSBS = false;
+    private static boolean usePassthrough = false;
     private static final KeyCharacterMap chars = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
     private static final float[] lastAxes = new float[ControllerAxis.values().length];
     private static final boolean[] lastButtons = new boolean[ControllerButton.values().length];
@@ -77,9 +78,8 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         text.addTextChangedListener(this);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean usePT = prefs.getBoolean("use_pt", true);
-
-        nativeSetUsePT(usePT);
+        usePassthrough = prefs.getBoolean("use_pt", true);
+        nativeSetUsePT(usePassthrough);
 
         String manufacturer = Build.MANUFACTURER.toUpperCase();
         sendManufacturer(manufacturer);
@@ -172,6 +172,15 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
             isDeviceDetectionFinished = true;
         }
         return isDeviceSupported;
+    }
+
+    public void callMenuAction(int item) {
+        switch (item) {
+            case R.id.xr_passthrough:
+                usePassthrough = !usePassthrough;
+                nativeSetUsePT(usePassthrough);
+                break;
+        }
     }
 
     public static void openIntent(Activity context, int containerId, String path) {
