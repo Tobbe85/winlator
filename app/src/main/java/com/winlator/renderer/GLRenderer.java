@@ -11,6 +11,7 @@ import com.winlator.XrActivity;
 import com.winlator.contentdialog.ContentDialog;
 import com.winlator.math.Mathf;
 import com.winlator.math.XForm;
+import com.winlator.renderer.material.BGRMaterial;
 import com.winlator.renderer.material.CursorMaterial;
 import com.winlator.renderer.material.ShaderMaterial;
 import com.winlator.renderer.material.WindowMaterial;
@@ -36,6 +37,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
     private final VertexAttribute quadVertices = new VertexAttribute("position", 2);
     private final float[] tmpXForm1 = XForm.getInstance();
     private final float[] tmpXForm2 = XForm.getInstance();
+    private final BGRMaterial bgrMaterial = new BGRMaterial();
     private final CursorMaterial cursorMaterial = new CursorMaterial();
     private final WindowMaterial windowMaterial = new WindowMaterial();
     public final ViewTransformation viewTransformation = new ViewTransformation();
@@ -296,9 +298,9 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
     }
 
     private void renderDialog() {
-        windowMaterial.use();
-        GLES20.glUniform2f(windowMaterial.getUniformLocation("viewSize"), xServer.screenInfo.width, xServer.screenInfo.height);
-        quadVertices.bind(windowMaterial.programId);
+        bgrMaterial.use();
+        GLES20.glUniform2f(bgrMaterial.getUniformLocation("viewSize"), xServer.screenInfo.width, xServer.screenInfo.height);
+        quadVertices.bind(bgrMaterial.programId);
 
         try (XLock lock = xServer.lock(XServer.Lockable.DRAWABLE_MANAGER)) {
             ContentDialog dialog = ContentDialog.getFrontInstance();
@@ -307,7 +309,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
                 if (drawable != null) {
                     int offsetX = (xServer.screenInfo.width - drawable.width) / 2;
                     int offsetY = (xServer.screenInfo.height - drawable.height) / 2;
-                    renderDrawable(drawable, offsetX, offsetY, windowMaterial, false);
+                    renderDrawable(drawable, offsetX, offsetY, bgrMaterial, false);
                 }
             }
         }

@@ -36,6 +36,7 @@ public class ContentDialog extends Dialog {
     private int[] pixels;
     private Bitmap bitmap;
     private Canvas canvas;
+    private Drawable drawable;
     private static ArrayList<ContentDialog> instances = new ArrayList<>();
 
     public ContentDialog(@NonNull Context context) {
@@ -235,15 +236,25 @@ public class ContentDialog extends Dialog {
     }
 
     public Drawable getDrawable() {
+        return drawable;
+    }
+
+    public void onKeyAction(int keyCode) {
+        BaseInputConnection input = new BaseInputConnection(contentView, true);
+        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+    }
+
+    public void redraw() {
         //Check if the view is ready
         View v = getContentView();
         if (v == null) {
-            return null;
+            return;
         }
         int w = v.getMeasuredWidth();
         int h = v.getMeasuredHeight();
         if (w * h == 0) {
-            return null;
+            return;
         }
 
         //Allocate render arrays
@@ -263,13 +274,11 @@ public class ContentDialog extends Dialog {
 
         //Render window
         v.draw(canvas);
-        return bitmap == null ? null : Drawable.fromBitmap(bitmap);
-    }
 
-    public void onKeyAction(int keyCode) {
-        BaseInputConnection input = new BaseInputConnection(contentView, true);
-        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+        //Double buffering
+        if (bitmap != null) {
+            drawable = Drawable.fromBitmap(bitmap.copy(bitmap.getConfig(), true));
+        }
     }
 
     public static ContentDialog getFrontInstance() {
