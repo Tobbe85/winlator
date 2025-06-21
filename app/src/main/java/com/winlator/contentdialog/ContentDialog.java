@@ -2,10 +2,12 @@ package com.winlator.contentdialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -19,6 +21,7 @@ import androidx.annotation.NonNull;
 import com.winlator.R;
 import com.winlator.core.AppUtils;
 import com.winlator.core.Callback;
+import com.winlator.xserver.Drawable;
 
 import java.util.ArrayList;
 
@@ -26,6 +29,12 @@ public class ContentDialog extends Dialog {
     private Runnable onConfirmCallback;
     private Runnable onCancelCallback;
     private final View contentView;
+
+    //OpenXR compatible rendering
+    private int[] pixels;
+    private Bitmap bitmap;
+    private Canvas canvas;
+    private static ArrayList<ContentDialog> instances = new ArrayList<>();
 
     public ContentDialog(@NonNull Context context) {
         this(context, 0);
@@ -209,5 +218,54 @@ public class ContentDialog extends Dialog {
 
         dialog.setTitle(titleResId);
         dialog.show();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        instances.add(this);
+    }
+
+    @Override
+    public void dismiss() {
+        instances.remove(this);
+        super.dismiss();
+    }
+
+    public Drawable getDrawable() {
+        //Check if the view is ready
+        View v = getContentView();
+        if (v == null) {
+            return null;
+        }
+        int w = v.getMeasuredWidth();
+        int h = v.getMeasuredHeight();
+        if (w * h == 0) {
+            return null;
+        }
+
+        //Allocate render arrays
+        if ((pixels == null) || (bitmap.getWidth() != w) || (bitmap.getHeight() != h)) {
+            pixels = new int[w * h];
+            bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(bitmap);
+        }
+
+        //Apply background
+        android.graphics.drawable.Drawable background = v.getBackground();
+        if (background != null) {
+            background.draw(canvas);
+        } else {
+            canvas.drawColor(Color.WHITE);
+        }
+
+        //Render window
+        v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+        v.draw(canvas);
+        return bitmap == null ? null : Drawable.fromBitmap(bitmap);
+    }
+
+    public static ContentDialog getFrontInstance() {
+        return instances.isEmpty() ? null : instances.get(instances.size() - 1);
     }
 }

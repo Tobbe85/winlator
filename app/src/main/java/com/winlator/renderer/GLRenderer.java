@@ -8,6 +8,7 @@ import android.opengl.GLSurfaceView;
 
 import com.winlator.R;
 import com.winlator.XrActivity;
+import com.winlator.contentdialog.ContentDialog;
 import com.winlator.math.Mathf;
 import com.winlator.math.XForm;
 import com.winlator.renderer.material.CursorMaterial;
@@ -266,6 +267,16 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
             } else {
                 for (RenderableWindow window : renderableWindows) {
                     renderDrawable(window.content, window.rootX, window.rootY, windowMaterial, window.forceFullscreen);
+                }
+            }
+
+            ContentDialog dialog = ContentDialog.getFrontInstance();
+            if (dialog != null) {
+                Drawable drawable = dialog.getDrawable();
+                if (drawable != null) {
+                    int offsetX = (xServer.screenInfo.width - drawable.width) / 2;
+                    int offsetY = (xServer.screenInfo.height - drawable.height) / 2;
+                    renderDrawable(drawable, offsetX, offsetY, windowMaterial, false);
                 }
             }
         }

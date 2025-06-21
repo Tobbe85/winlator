@@ -17,7 +17,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import com.winlator.container.Container;
-import com.winlator.core.AppUtils;
+import com.winlator.contentdialog.ContentDialog;
 import com.winlator.xserver.Keyboard;
 import com.winlator.xserver.Pointer;
 import com.winlator.xserver.XKeycode;
@@ -144,11 +144,11 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     }
 
     public static boolean getImmersive() {
-        return isImmersive;
+        return isImmersive && ContentDialog.getFrontInstance() == null;
     }
 
     public static boolean getSBS() {
-        return isSBS;
+        return isSBS && ContentDialog.getFrontInstance() == null;
     }
 
     public static boolean isEnabled(Context context) {
@@ -223,6 +223,22 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         ControllerButton secondaryRight = primaryController == 1 ? ControllerButton.L_THUMBSTICK_RIGHT : ControllerButton.R_THUMBSTICK_RIGHT;
         ControllerButton secondaryPress = primaryController == 1 ? ControllerButton.L_THUMBSTICK_PRESS : ControllerButton.R_THUMBSTICK_PRESS;
 
+        // Android UI input
+        if (getButtonClicked(buttons, primaryPress)) {
+            instance.runOnUiThread(() -> instance.onBackPressed());
+                /*instance.runOnUiThread(() -> {
+                    isSBS = false;
+                    isImmersive = false;
+                    instance.resetText();
+                    AppUtils.showKeyboard(instance);
+                    instance.findViewById(R.id.XRTextInput).requestFocus();
+                });*/
+        }
+        ContentDialog dialog = ContentDialog.getFrontInstance();
+        if (dialog != null) {
+
+        }
+
         try (XLock lock = instance.getXServer().lock(XServer.Lockable.WINDOW_MANAGER, XServer.Lockable.INPUT_DEVICE)) {
             // Mouse control with hand
             float f = 0.75f;
@@ -277,17 +293,6 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
                 else {
                     isImmersive = !isImmersive;
                 }
-            }
-
-            // Show system keyboard
-            if (getButtonClicked(buttons, primaryPress)) {
-                instance.runOnUiThread(() -> {
-                    isSBS = false;
-                    isImmersive = false;
-                    instance.resetText();
-                    AppUtils.showKeyboard(instance);
-                    instance.findViewById(R.id.XRTextInput).requestFocus();
-                });
             }
 
             // Store the OpenXR data
