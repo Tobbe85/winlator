@@ -169,7 +169,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
         NavigationView navigationView = findViewById(R.id.NavigationView);
         ProcessHelper.removeAllDebugCallbacks();
-        boolean enableLogs = !XrActivity.isEnabled(this) && preferences.getBoolean("enable_wine_debug", false) || preferences.getBoolean("enable_box86_64_logs", false);
+        boolean enableLogs = preferences.getBoolean("enable_wine_debug", false) || preferences.getBoolean("enable_box86_64_logs", false);
         if (enableLogs) ProcessHelper.addDebugCallback(debugDialog = new DebugDialog(this));
         Menu menu = navigationView.getMenu();
         menu.findItem(R.id.main_menu_logs).setVisible(enableLogs);
@@ -177,7 +177,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             menu.findItem(R.id.main_menu_input_controls).setVisible(false);
             menu.findItem(R.id.main_menu_toggle_fullscreen).setVisible(false);
             menu.findItem(R.id.main_menu_toggle_orientation).setVisible(false);
-            menu.findItem(R.id.main_menu_task_manager).setVisible(false); //this works but way too buggy
             menu.findItem(R.id.main_menu_magnifier).setVisible(false);
             menu.findItem(R.id.main_menu_touchpad_help).setVisible(false);
         } else {
@@ -421,7 +420,11 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 drawerLayout.closeDrawers();
                 break;
             case R.id.main_menu_task_manager:
-                (new TaskManagerDialog(this)).show();
+                if (XrActivity.isEnabled(this)) {
+                    XrActivity.getInstance().getWinHandler().exec("taskmgr.exe");
+                } else {
+                    (new TaskManagerDialog(this)).show();
+                }
                 drawerLayout.closeDrawers();
                 break;
             case R.id.main_menu_magnifier:

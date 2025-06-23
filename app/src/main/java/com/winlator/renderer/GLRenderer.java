@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 
 import com.winlator.R;
 import com.winlator.XrActivity;
@@ -226,6 +227,10 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
     }
 
     private void renderDrawable(Drawable drawable, int x, int y, ShaderMaterial material, boolean forceFullscreen) {
+        renderDrawable(drawable, x, y, material, forceFullscreen, 1);
+    }
+
+    private void renderDrawable(Drawable drawable, int x, int y, ShaderMaterial material, boolean forceFullscreen, float scale) {
         synchronized (drawable.renderLock) {
             Texture texture = drawable.getTexture();
             texture.updateFromDrawable(drawable);
@@ -235,7 +240,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
                 short newWidth = (short)(((float)newHeight / drawable.height) * drawable.width);
                 XForm.set(tmpXForm1, (xServer.screenInfo.width - newWidth) * 0.5f, (xServer.screenInfo.height - newHeight) * 0.5f, newWidth, newHeight);
             }
-            else XForm.set(tmpXForm1, x, y, drawable.width, drawable.height);
+            else XForm.set(tmpXForm1, x, y, drawable.width * scale, drawable.height * scale);
 
             XForm.multiply(tmpXForm1, tmpXForm1, tmpXForm2);
 
@@ -307,9 +312,10 @@ public class GLRenderer implements GLSurfaceView.Renderer, WindowManager.OnWindo
             if (dialog != null) {
                 Drawable drawable = dialog.getDrawable();
                 if (drawable != null) {
-                    int offsetX = (xServer.screenInfo.width - drawable.width) / 2;
-                    int offsetY = (xServer.screenInfo.height - drawable.height) / 2;
-                    renderDrawable(drawable, offsetX, offsetY, bgrMaterial, false);
+                    float scale = Build.MANUFACTURER.toUpperCase().compareTo("PICO") == 0 ? 0.3f : 0.4f;
+                    int offsetX = (int) ((xServer.screenInfo.width - drawable.width * scale) / 2);
+                    int offsetY = (int) ((xServer.screenInfo.height - drawable.height * scale) / 2);
+                    renderDrawable(drawable, offsetX, offsetY, bgrMaterial, false, scale);
                 }
             }
         }

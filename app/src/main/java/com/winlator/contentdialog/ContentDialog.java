@@ -34,10 +34,11 @@ public class ContentDialog extends Dialog {
     private final View contentView;
 
     //OpenXR compatible rendering
-    private int[] pixels;
-    private Bitmap bitmap;
-    private Canvas canvas;
-    private Drawable drawable;
+    private static int counter;
+    private static int[] pixels;
+    private static Bitmap bitmap;
+    private static Canvas canvas;
+    private static Drawable drawable;
     private static ArrayList<ContentDialog> instances = new ArrayList<>();
 
     public ContentDialog(@NonNull Context context) {
@@ -237,7 +238,10 @@ public class ContentDialog extends Dialog {
     }
 
     public Drawable getDrawable() {
-        XrActivity.getInstance().runOnUiThread(this::redraw);
+        if (counter++ > 10) {
+            XrActivity.getInstance().runOnUiThread(this::redraw);
+            counter = 0;
+        }
         return drawable;
     }
 
@@ -264,6 +268,7 @@ public class ContentDialog extends Dialog {
             pixels = new int[w * h];
             bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
+            drawable = Drawable.fromBitmap(bitmap);
         }
 
         //Apply background
@@ -279,7 +284,7 @@ public class ContentDialog extends Dialog {
 
         //Double buffering
         if (bitmap != null) {
-            drawable = Drawable.fromBitmap(bitmap.copy(bitmap.getConfig(), true));
+            drawable.drawBitmap(bitmap);
         }
     }
 
