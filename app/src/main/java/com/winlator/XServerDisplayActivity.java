@@ -173,7 +173,15 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         if (enableLogs) ProcessHelper.addDebugCallback(debugDialog = new DebugDialog(this));
         Menu menu = navigationView.getMenu();
         menu.findItem(R.id.main_menu_logs).setVisible(enableLogs);
-        if (XrActivity.isEnabled(this)) menu.findItem(R.id.main_menu_magnifier).setVisible(false);
+        if (XrActivity.isEnabled(this)) {
+            menu.findItem(R.id.main_menu_input_controls).setVisible(false);
+            menu.findItem(R.id.main_menu_toggle_fullscreen).setVisible(false);
+            menu.findItem(R.id.main_menu_toggle_orientation).setVisible(false);
+            menu.findItem(R.id.main_menu_magnifier).setVisible(false);
+            menu.findItem(R.id.main_menu_touchpad_help).setVisible(false);
+        } else {
+            menu.findItem(R.id.xr_passthrough).setVisible(false);
+        }
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setPointerIcon(PointerIcon.getSystemIcon(this, PointerIcon.TYPE_ARROW));
         navigationView.setOnFocusChangeListener((v, hasFocus) -> navigationFocused = hasFocus);
@@ -412,7 +420,11 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 drawerLayout.closeDrawers();
                 break;
             case R.id.main_menu_task_manager:
-                (new TaskManagerDialog(this)).show();
+                if (XrActivity.isEnabled(this)) {
+                    XrActivity.getInstance().getWinHandler().exec("taskmgr.exe");
+                } else {
+                    (new TaskManagerDialog(this)).show();
+                }
                 drawerLayout.closeDrawers();
                 break;
             case R.id.main_menu_magnifier:
@@ -442,6 +454,10 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             case R.id.main_menu_exit:
                 finish();
                 break;
+            default:
+                if (XrActivity.isEnabled(this)) {
+                    XrActivity.getInstance().callMenuAction(item.getItemId());
+                }
         }
         return true;
     }

@@ -2,10 +2,14 @@ package com.winlator.contentdialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.SparseBooleanArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.inputmethod.BaseInputConnection;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -17,8 +21,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.winlator.R;
+import com.winlator.XrActivity;
 import com.winlator.core.AppUtils;
 import com.winlator.core.Callback;
+import com.winlator.xserver.Drawable;
 
 import java.util.ArrayList;
 
@@ -26,6 +32,14 @@ public class ContentDialog extends Dialog {
     private Runnable onConfirmCallback;
     private Runnable onCancelCallback;
     private final View contentView;
+
+    //OpenXR compatible rendering
+    private static int counter;
+    private static int[] pixels;
+    private static Bitmap bitmap;
+    private static Canvas canvas;
+    private static Drawable drawable;
+    private static ArrayList<ContentDialog> instances = new ArrayList<>();
 
     public ContentDialog(@NonNull Context context) {
         this(context, 0);
@@ -209,5 +223,72 @@ public class ContentDialog extends Dialog {
 
         dialog.setTitle(titleResId);
         dialog.show();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        instances.add(this);
+    }
+
+    @Override
+    public void dismiss() {
+        instances.remove(this);
+        super.dismiss();
+    }
+
+    public Drawable getDrawable() {
+        if (counter++ > 10) {
+            XrActivity.getInstance().runOnUiThread(this::redraw);
+            counter = 0;
+        }
+        return drawable;
+    }
+
+    public void onKeyAction(int keyCode) {
+        BaseInputConnection input = new BaseInputConnection(contentView, true);
+        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        input.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+    }
+
+    public void redraw() {
+        //Check if the view is ready
+        View v = getContentView();
+        if (v == null) {
+            return;
+        }
+        int w = v.getMeasuredWidth();
+        int h = v.getMeasuredHeight();
+        if (w * h == 0) {
+            return;
+        }
+
+        //Allocate render arrays
+        if ((pixels == null) || (bitmap.getWidth() != w) || (bitmap.getHeight() != h)) {
+            pixels = new int[w * h];
+            bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(bitmap);
+            drawable = Drawable.fromBitmap(bitmap);
+        }
+
+        //Apply background
+        android.graphics.drawable.Drawable background = v.getBackground();
+        if (background != null) {
+            background.draw(canvas);
+        } else {
+            canvas.drawColor(Color.WHITE);
+        }
+
+        //Render window
+        v.draw(canvas);
+
+        //Double buffering
+        if (bitmap != null) {
+            drawable.drawBitmap(bitmap);
+        }
+    }
+
+    public static ContentDialog getFrontInstance() {
+        return instances.isEmpty() ? null : instances.get(instances.size() - 1);
     }
 }

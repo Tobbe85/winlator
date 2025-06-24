@@ -75,6 +75,12 @@ public class Drawable extends XResource {
         this.onDestroyListener = onDestroyListener;
     }
 
+    public void drawBitmap(Bitmap bitmap) {
+        fromBitmap(bitmap, data);
+        texture.setNeedsUpdate(true);
+        if (onDrawListener != null) onDrawListener.run();
+    }
+
     public void drawImage(short srcX, short srcY, short dstX, short dstY, short width, short height, byte depth, ByteBuffer data, short totalWidth, short totalHeight) {
         if (depth == 1) {
             drawBitmap(width, height, data, this.data);

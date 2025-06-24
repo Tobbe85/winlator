@@ -17,7 +17,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import com.winlator.container.Container;
-import com.winlator.core.AppUtils;
+import com.winlator.contentdialog.ContentDialog;
 import com.winlator.xserver.Keyboard;
 import com.winlator.xserver.Pointer;
 import com.winlator.xserver.XKeycode;
@@ -47,6 +47,7 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     private static boolean isEnabled = false;
     private static boolean isImmersive = false;
     private static boolean isSBS = false;
+    private static boolean usePassthrough = false;
     private static final KeyCharacterMap chars = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
     private static final float[] lastAxes = new float[ControllerAxis.values().length];
     private static final boolean[] lastButtons = new boolean[ControllerButton.values().length];
@@ -77,9 +78,8 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         text.addTextChangedListener(this);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean usePT = prefs.getBoolean("use_pt", true);
-
-        nativeSetUsePT(usePT);
+        usePassthrough = prefs.getBoolean("use_pt", true);
+        nativeSetUsePT(usePassthrough);
 
         String manufacturer = Build.MANUFACTURER.toUpperCase();
         sendManufacturer(manufacturer);
@@ -144,11 +144,11 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
     }
 
     public static boolean getImmersive() {
-        return isImmersive;
+        return isImmersive && ContentDialog.getFrontInstance() == null;
     }
 
     public static boolean getSBS() {
-        return isSBS;
+        return isSBS && ContentDialog.getFrontInstance() == null;
     }
 
     public static boolean isEnabled(Context context) {
@@ -172,6 +172,15 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
             isDeviceDetectionFinished = true;
         }
         return isDeviceSupported;
+    }
+
+    public void callMenuAction(int item) {
+        switch (item) {
+            case R.id.xr_passthrough:
+                usePassthrough = !usePassthrough;
+                nativeSetUsePT(usePassthrough);
+                break;
+        }
     }
 
     public static void openIntent(Activity context, int containerId, String path) {
@@ -222,6 +231,21 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
         ControllerButton secondaryLeft = primaryController == 1 ? ControllerButton.L_THUMBSTICK_LEFT : ControllerButton.R_THUMBSTICK_LEFT;
         ControllerButton secondaryRight = primaryController == 1 ? ControllerButton.L_THUMBSTICK_RIGHT : ControllerButton.R_THUMBSTICK_RIGHT;
         ControllerButton secondaryPress = primaryController == 1 ? ControllerButton.L_THUMBSTICK_PRESS : ControllerButton.R_THUMBSTICK_PRESS;
+
+        // Android UI input
+        ContentDialog dialog = ContentDialog.getFrontInstance();
+        if (dialog != null) {
+            if (getButtonClicked(buttons, primaryPress)) instance.runOnUiThread(dialog::onBackPressed);
+            if (getButtonClicked(buttons, primaryUp)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_UP));
+            if (getButtonClicked(buttons, primaryDown)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_DOWN));
+            if (getButtonClicked(buttons, primaryTrigger)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_ENTER));
+            if (getButtonClicked(buttons, primaryLeft)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_LEFT));
+            if (getButtonClicked(buttons, primaryRight)) instance.runOnUiThread(() -> dialog.onKeyAction(KeyEvent.KEYCODE_DPAD_RIGHT));
+            System.arraycopy(buttons, 0, lastButtons, 0, buttons.length);
+            return;
+        } else if (getButtonClicked(buttons, primaryPress)) {
+            instance.runOnUiThread(() -> instance.onBackPressed());
+        }
 
         try (XLock lock = instance.getXServer().lock(XServer.Lockable.WINDOW_MANAGER, XServer.Lockable.INPUT_DEVICE)) {
             // Mouse control with hand
@@ -277,17 +301,6 @@ public class XrActivity extends XServerDisplayActivity implements TextWatcher {
                 else {
                     isImmersive = !isImmersive;
                 }
-            }
-
-            // Show system keyboard
-            if (getButtonClicked(buttons, primaryPress)) {
-                instance.runOnUiThread(() -> {
-                    isSBS = false;
-                    isImmersive = false;
-                    instance.resetText();
-                    AppUtils.showKeyboard(instance);
-                    instance.findViewById(R.id.XRTextInput).requestFocus();
-                });
             }
 
             // Store the OpenXR data
