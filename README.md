@@ -3,9 +3,9 @@
 > ⚠️ **Notice:**  
 > This fork is no longer being maintained, as **Luboš Vonasek** has completely rebuilt **WinlatorXR** from the ground up, now with full **Pico support**.  
 > The new version is based on **CMOD**, which brings a massive performance boost.  
-> 👉 Check it out here: https://github.com/lvonasek/WinlatorXR
+> 👉 Check it out here, it is amazing: https://github.com/lvonasek/WinlatorXR
 
-<br>
+<br><br><br>
 
 ![image](https://github.com/Tobbe85/winlator/raw/main/logo.png)
 
@@ -30,6 +30,7 @@ It includes:
 
 ## Download latest Build
 👉 [Get the latest release here](https://github.com/Tobbe85/winlator/releases/latest)
+
 
 
 
