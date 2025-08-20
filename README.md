@@ -1,3 +1,5 @@
+# This fork is no longer being maintained, as Luboš Vonasek has completely rebuilt WinlatorXR from the ground up, now with full Pico support. The new version is based on CMOD, which brings a massive performance boost. Definitely check it out – it’s absolutely amazing! https://github.com/lvonasek/WinlatorXR
+
 ![image](https://github.com/Tobbe85/winlator/raw/main/logo.png)
 # WinlatorXR-Glibc
 This is the first WinlatorXR for Pico Devices.
@@ -16,3 +18,4 @@ It supports Pico 3 up to Pico 4 Ultra
 
 # Download latest Build
 - https://github.com/Tobbe85/winlator/releases/latest
+
